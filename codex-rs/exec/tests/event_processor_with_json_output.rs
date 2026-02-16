@@ -24,6 +24,7 @@ use codex_core::protocol::SessionConfiguredEvent;
 use codex_core::protocol::WarningEvent;
 use codex_core::protocol::WebSearchBeginEvent;
 use codex_core::protocol::WebSearchEndEvent;
+use codex_exec::event_processor_with_jsonl_output::serialize_event_with_timestamp;
 use codex_exec::event_processor_with_jsonl_output::EventProcessorWithJsonOutput;
 use codex_exec::exec_events::AgentMessageItem;
 use codex_exec::exec_events::CollabAgentState;
@@ -1303,4 +1304,89 @@ fn task_complete_produces_turn_completed_with_usage() {
             },
         })]
     );
+}
+
+#[test]
+fn serialize_event_with_timestamp_includes_timestamp_field() {
+    let event = ThreadEvent::ThreadStarted(ThreadStartedEvent {
+        thread_id: "abc-123".to_string(),
+    });
+    let json_str = serialize_event_with_timestamp(&event).unwrap();
+    let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
+    let obj = parsed.as_object().unwrap();
+
+    assert_eq!(obj.get("type").unwrap(), "thread.started");
+    assert_eq!(obj.get("thread_id").unwrap(), "abc-123");
+
+    let ts = obj.get("timestamp").unwrap().as_str().unwrap();
+    // Verify ISO 8601 format ending with Z (UTC)
+    assert!(ts.ends_with('Z'), "timestamp should end with Z: {ts}");
+    // Verify it parses as a valid RFC 3339 timestamp
+    chrono::DateTime::parse_from_rfc3339(ts)
+        .unwrap_or_else(|e| panic!("timestamp is not valid RFC 3339: {ts}: {e}"));
+}
+
+#[test]
+fn all_thread_event_variants_include_timestamp() {
+    let variants: Vec<ThreadEvent> = vec![
+        ThreadEvent::ThreadStarted(ThreadStartedEvent {
+            thread_id: "t1".to_string(),
+        }),
+        ThreadEvent::TurnStarted(TurnStartedEvent {}),
+        ThreadEvent::TurnCompleted(TurnCompletedEvent {
+            usage: Usage::default(),
+        }),
+        ThreadEvent::TurnFailed(TurnFailedEvent {
+            error: ThreadErrorEvent {
+                message: "fail".to_string(),
+            },
+        }),
+        ThreadEvent::ItemStarted(ItemStartedEvent {
+            item: ThreadItem {
+                id: "i1".to_string(),
+                details: ThreadItemDetails::AgentMessage(AgentMessageItem {
+                    text: "hi".to_string(),
+                }),
+            },
+        }),
+        ThreadEvent::ItemUpdated(ItemUpdatedEvent {
+            item: ThreadItem {
+                id: "i2".to_string(),
+                details: ThreadItemDetails::AgentMessage(AgentMessageItem {
+                    text: "update".to_string(),
+                }),
+            },
+        }),
+        ThreadEvent::ItemCompleted(ItemCompletedEvent {
+            item: ThreadItem {
+                id: "i3".to_string(),
+                details: ThreadItemDetails::AgentMessage(AgentMessageItem {
+                    text: "done".to_string(),
+                }),
+            },
+        }),
+        ThreadEvent::Error(ThreadErrorEvent {
+            message: "err".to_string(),
+        }),
+    ];
+
+    for variant in &variants {
+        let json_str = serialize_event_with_timestamp(variant).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
+        let obj = parsed.as_object().unwrap();
+
+        assert!(
+            obj.contains_key("type"),
+            "missing 'type' field in {json_str}"
+        );
+        assert!(
+            obj.contains_key("timestamp"),
+            "missing 'timestamp' field in {json_str}"
+        );
+
+        let ts = obj["timestamp"].as_str().unwrap();
+        assert!(ts.ends_with('Z'), "timestamp should end with Z: {ts}");
+        chrono::DateTime::parse_from_rfc3339(ts)
+            .unwrap_or_else(|e| panic!("invalid RFC 3339 timestamp: {ts}: {e}"));
+    }
 }

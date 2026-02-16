@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicU64;
 
+use chrono::Utc;
+
 use crate::event_processor::CodexStatus;
 use crate::event_processor::EventProcessor;
 use crate::event_processor::handle_last_message;
@@ -835,6 +837,22 @@ impl From<CoreAgentStatus> for CollabAgentState {
     }
 }
 
+/// Serializes a `ThreadEvent` to a JSON string with an added `timestamp` field.
+/// The timestamp is an ISO 8601 string with millisecond precision in UTC (e.g.
+/// `"2026-02-16T12:34:56.789Z"`).
+pub fn serialize_event_with_timestamp(event: &ThreadEvent) -> Result<String, serde_json::Error> {
+    let mut value = serde_json::to_value(event)?;
+    if let serde_json::Value::Object(ref mut map) = value {
+        map.insert(
+            "timestamp".to_string(),
+            serde_json::Value::String(
+                Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+            ),
+        );
+    }
+    serde_json::to_string(&value)
+}
+
 impl EventProcessor for EventProcessorWithJsonOutput {
     fn print_config_summary(&mut self, _: &Config, _: &str, ev: &protocol::SessionConfiguredEvent) {
         self.process_event(protocol::Event {
@@ -847,7 +865,7 @@ impl EventProcessor for EventProcessorWithJsonOutput {
     fn process_event(&mut self, event: protocol::Event) -> CodexStatus {
         let aggregated = self.collect_thread_events(&event);
         for conv_event in aggregated {
-            match serde_json::to_string(&conv_event) {
+            match serialize_event_with_timestamp(&conv_event) {
                 Ok(line) => {
                     println!("{line}");
                 }
