@@ -899,10 +899,10 @@ impl Session {
                         let Some(sess) = weak_sess.upgrade() else {
                             break;
                         };
-                        let event = Event {
-                            id: sess.next_internal_sub_id(),
-                            msg: EventMsg::SkillsUpdateAvailable,
-                        };
+                        let event = Event::new(
+                            sess.next_internal_sub_id(),
+                            EventMsg::SkillsUpdateAvailable,
+                        );
                         sess.send_event_raw(event).await;
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
@@ -1109,18 +1109,18 @@ impl Session {
         let mut post_session_configured_events = Vec::<Event>::new();
 
         for usage in config.features.legacy_feature_usages() {
-            post_session_configured_events.push(Event {
-                id: INITIAL_SUBMIT_ID.to_owned(),
-                msg: EventMsg::DeprecationNotice(DeprecationNoticeEvent {
+            post_session_configured_events.push(Event::new(
+                INITIAL_SUBMIT_ID,
+                EventMsg::DeprecationNotice(DeprecationNoticeEvent {
                     summary: usage.summary.clone(),
                     details: usage.details.clone(),
                 }),
-            });
+            ));
         }
         if crate::config::uses_deprecated_instructions_file(&config.config_layer_stack) {
-            post_session_configured_events.push(Event {
-                id: INITIAL_SUBMIT_ID.to_owned(),
-                msg: EventMsg::DeprecationNotice(DeprecationNoticeEvent {
+            post_session_configured_events.push(Event::new(
+                INITIAL_SUBMIT_ID,
+                EventMsg::DeprecationNotice(DeprecationNoticeEvent {
                     summary: "`experimental_instructions_file` is deprecated and ignored. Use `model_instructions_file` instead."
                         .to_string(),
                     details: Some(
@@ -1128,24 +1128,24 @@ impl Session {
                             .to_string(),
                     ),
                 }),
-            });
+            ));
         }
         for message in &config.startup_warnings {
-            post_session_configured_events.push(Event {
-                id: "".to_owned(),
-                msg: EventMsg::Warning(WarningEvent {
+            post_session_configured_events.push(Event::new(
+                "",
+                EventMsg::Warning(WarningEvent {
                     message: message.clone(),
                 }),
-            });
+            ));
         }
         maybe_push_unstable_features_warning(&config, &mut post_session_configured_events);
         if config.permissions.approval_policy.value() == AskForApproval::OnFailure {
-            post_session_configured_events.push(Event {
-                id: "".to_owned(),
-                msg: EventMsg::Warning(WarningEvent {
+            post_session_configured_events.push(Event::new(
+                "",
+                EventMsg::Warning(WarningEvent {
                     message: "`on-failure` approval policy is deprecated and will be removed in a future release. Use `on-request` for interactive approvals or `never` for non-interactive runs.".to_string(),
                 }),
-            });
+            ));
         }
 
         let auth = auth.as_ref();
@@ -1334,9 +1334,9 @@ impl Session {
         // Dispatch the SessionConfiguredEvent first and then report any errors.
         // If resuming, include converted initial messages in the payload so UIs can render them immediately.
         let initial_messages = initial_history.get_event_msgs();
-        let events = std::iter::once(Event {
-            id: INITIAL_SUBMIT_ID.to_owned(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        let events = std::iter::once(Event::new(
+            INITIAL_SUBMIT_ID,
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id: conversation_id,
                 forked_from_id,
                 thread_name: session_configuration.thread_name.clone(),
@@ -1352,7 +1352,7 @@ impl Session {
                 network_proxy: session_network_proxy,
                 rollout_path,
             }),
-        })
+        ))
         .chain(post_session_configured_events.into_iter());
         for event in events {
             sess.send_event_raw(event).await;
@@ -1788,13 +1788,13 @@ impl Session {
                 }
                 Err(err) => {
                     drop(state);
-                    self.send_event_raw(Event {
-                        id: sub_id.clone(),
-                        msg: EventMsg::Error(ErrorEvent {
+                    self.send_event_raw(Event::new(
+                        sub_id.clone(),
+                        EventMsg::Error(ErrorEvent {
                             message: err.to_string(),
                             codex_error_info: Some(CodexErrorInfo::BadRequest),
                         }),
-                    })
+                    ))
                     .await;
                     return Err(err);
                 }
@@ -2134,18 +2134,12 @@ impl Session {
     /// Persist the event to rollout and send it to clients.
     pub(crate) async fn send_event(&self, turn_context: &TurnContext, msg: EventMsg) {
         let legacy_source = msg.clone();
-        let event = Event {
-            id: turn_context.sub_id.clone(),
-            msg,
-        };
+        let event = Event::new(turn_context.sub_id.clone(), msg);
         self.send_event_raw(event).await;
 
         let show_raw_agent_reasoning = self.show_raw_agent_reasoning();
         for legacy in legacy_source.as_legacy_events(show_raw_agent_reasoning) {
-            let legacy_event = Event {
-                id: turn_context.sub_id.clone(),
-                msg: legacy,
-            };
+            let legacy_event = Event::new(turn_context.sub_id.clone(), legacy);
             self.send_event_raw(legacy_event).await;
         }
     }
@@ -3390,13 +3384,13 @@ mod handlers {
         updates: SessionSettingsUpdate,
     ) {
         if let Err(err) = sess.update_settings(updates).await {
-            sess.send_event_raw(Event {
-                id: sub_id,
-                msg: EventMsg::Error(ErrorEvent {
+            sess.send_event_raw(Event::new(
+                sub_id,
+                EventMsg::Error(ErrorEvent {
                     message: err.to_string(),
                     codex_error_info: Some(CodexErrorInfo::BadRequest),
                 }),
-            })
+            ))
             .await;
         }
     }
@@ -3584,11 +3578,8 @@ mod handlers {
                     let message = format!("Failed to apply execpolicy amendment: {err}");
                     tracing::warn!("{message}");
                     let warning = EventMsg::Warning(WarningEvent { message });
-                    sess.send_event_raw(Event {
-                        id: event_turn_id.clone(),
-                        msg: warning,
-                    })
-                    .await;
+                    sess.send_event_raw(Event::new(event_turn_id.clone(), warning))
+                        .await;
                 }
             }
         }
@@ -3653,9 +3644,9 @@ mod handlers {
             .await
             .unwrap_or(None);
 
-            let event = Event {
-                id: sub_id,
-                msg: EventMsg::GetHistoryEntryResponse(
+            let event = Event::new(
+                sub_id,
+                EventMsg::GetHistoryEntryResponse(
                     crate::protocol::GetHistoryEntryResponseEvent {
                         offset,
                         log_id,
@@ -3666,7 +3657,7 @@ mod handlers {
                         }),
                     },
                 ),
-            };
+            );
 
             sess_clone.send_event_raw(event).await;
         });
@@ -3691,10 +3682,7 @@ mod handlers {
                 .await,
         )
         .await;
-        let event = Event {
-            id: sub_id,
-            msg: EventMsg::McpListToolsResponse(snapshot),
-        };
+        let event = Event::new(sub_id, EventMsg::McpListToolsResponse(snapshot));
         sess.send_event_raw(event).await;
     }
 
@@ -3706,12 +3694,12 @@ mod handlers {
                 Vec::new()
             };
 
-        let event = Event {
-            id: sub_id,
-            msg: EventMsg::ListCustomPromptsResponse(ListCustomPromptsResponseEvent {
+        let event = Event::new(
+            sub_id,
+            EventMsg::ListCustomPromptsResponse(ListCustomPromptsResponseEvent {
                 custom_prompts,
             }),
-        };
+        );
         sess.send_event_raw(event).await;
     }
 
@@ -3741,10 +3729,10 @@ mod handlers {
             });
         }
 
-        let event = Event {
-            id: sub_id,
-            msg: EventMsg::ListSkillsResponse(ListSkillsResponseEvent { skills }),
-        };
+        let event = Event::new(
+            sub_id,
+            EventMsg::ListSkillsResponse(ListSkillsResponseEvent { skills }),
+        );
         sess.send_event_raw(event).await;
     }
 
@@ -3764,22 +3752,22 @@ mod handlers {
 
         match response {
             Ok(skills) => {
-                let event = Event {
-                    id: sub_id,
-                    msg: EventMsg::ListRemoteSkillsResponse(ListRemoteSkillsResponseEvent {
+                let event = Event::new(
+                    sub_id,
+                    EventMsg::ListRemoteSkillsResponse(ListRemoteSkillsResponseEvent {
                         skills,
                     }),
-                };
+                );
                 sess.send_event_raw(event).await;
             }
             Err(err) => {
-                let event = Event {
-                    id: sub_id,
-                    msg: EventMsg::Error(ErrorEvent {
+                let event = Event::new(
+                    sub_id,
+                    EventMsg::Error(ErrorEvent {
                         message: format!("failed to list remote skills: {err}"),
                         codex_error_info: Some(CodexErrorInfo::Other),
                     }),
-                };
+                );
                 sess.send_event_raw(event).await;
             }
         }
@@ -3796,24 +3784,24 @@ mod handlers {
             .await
         {
             Ok(result) => {
-                let event = Event {
-                    id: sub_id,
-                    msg: EventMsg::RemoteSkillDownloaded(RemoteSkillDownloadedEvent {
+                let event = Event::new(
+                    sub_id,
+                    EventMsg::RemoteSkillDownloaded(RemoteSkillDownloadedEvent {
                         id: result.id,
                         name: result.name,
                         path: result.path,
                     }),
-                };
+                );
                 sess.send_event_raw(event).await;
             }
             Err(err) => {
-                let event = Event {
-                    id: sub_id,
-                    msg: EventMsg::Error(ErrorEvent {
+                let event = Event::new(
+                    sub_id,
+                    EventMsg::Error(ErrorEvent {
                         message: format!("failed to download remote skill {hazelnut_id}: {err}"),
                         codex_error_info: Some(CodexErrorInfo::Other),
                     }),
-                };
+                );
                 sess.send_event_raw(event).await;
             }
         }
@@ -3862,26 +3850,26 @@ mod handlers {
         }
 
         if errors.is_empty() {
-            sess.send_event_raw(Event {
-                id: sub_id,
-                msg: EventMsg::Warning(WarningEvent {
+            sess.send_event_raw(Event::new(
+                sub_id,
+                EventMsg::Warning(WarningEvent {
                     message: format!(
                         "Dropped memories at {} and cleared memory rows from state db.",
                         memory_root.display()
                     ),
                 }),
-            })
+            ))
             .await;
             return;
         }
 
-        sess.send_event_raw(Event {
-            id: sub_id,
-            msg: EventMsg::Error(ErrorEvent {
+        sess.send_event_raw(Event::new(
+            sub_id,
+            EventMsg::Error(ErrorEvent {
                 message: format!("Memory drop completed with errors: {}", errors.join("; ")),
                 codex_error_info: Some(CodexErrorInfo::Other),
             }),
-        })
+        ))
         .await;
     }
 
@@ -3893,37 +3881,37 @@ mod handlers {
 
         crate::memories::start_memories_startup_task(sess, Arc::clone(config), &session_source);
 
-        sess.send_event_raw(Event {
-            id: sub_id.clone(),
-            msg: EventMsg::Warning(WarningEvent {
+        sess.send_event_raw(Event::new(
+            sub_id.clone(),
+            EventMsg::Warning(WarningEvent {
                 message: "Memory update triggered.".to_string(),
             }),
-        })
+        ))
         .await;
     }
 
     pub async fn thread_rollback(sess: &Arc<Session>, sub_id: String, num_turns: u32) {
         if num_turns == 0 {
-            sess.send_event_raw(Event {
-                id: sub_id,
-                msg: EventMsg::Error(ErrorEvent {
+            sess.send_event_raw(Event::new(
+                sub_id,
+                EventMsg::Error(ErrorEvent {
                     message: "num_turns must be >= 1".to_string(),
                     codex_error_info: Some(CodexErrorInfo::ThreadRollbackFailed),
                 }),
-            })
+            ))
             .await;
             return;
         }
 
         let has_active_turn = { sess.active_turn.lock().await.is_some() };
         if has_active_turn {
-            sess.send_event_raw(Event {
-                id: sub_id,
-                msg: EventMsg::Error(ErrorEvent {
+            sess.send_event_raw(Event::new(
+                sub_id,
+                EventMsg::Error(ErrorEvent {
                     message: "Cannot rollback while a turn is in progress.".to_string(),
                     codex_error_info: Some(CodexErrorInfo::ThreadRollbackFailed),
                 }),
-            })
+            ))
             .await;
             return;
         }
@@ -3940,10 +3928,10 @@ mod handlers {
         sess.replace_history(history.raw_items().to_vec()).await;
         sess.recompute_token_usage(turn_context.as_ref()).await;
 
-        sess.send_event_raw_flushed(Event {
-            id: turn_context.sub_id.clone(),
-            msg: EventMsg::ThreadRolledBack(ThreadRolledBackEvent { num_turns }),
-        })
+        sess.send_event_raw_flushed(Event::new(
+            turn_context.sub_id.clone(),
+            EventMsg::ThreadRolledBack(ThreadRolledBackEvent { num_turns }),
+        ))
         .await;
     }
 
@@ -3956,13 +3944,13 @@ mod handlers {
     /// Returns an error event if the name is empty or session persistence is disabled.
     pub async fn set_thread_name(sess: &Arc<Session>, sub_id: String, name: String) {
         let Some(name) = crate::util::normalize_thread_name(&name) else {
-            let event = Event {
-                id: sub_id,
-                msg: EventMsg::Error(ErrorEvent {
+            let event = Event::new(
+                sub_id,
+                EventMsg::Error(ErrorEvent {
                     message: "Thread name cannot be empty.".to_string(),
                     codex_error_info: Some(CodexErrorInfo::BadRequest),
                 }),
-            };
+            );
             sess.send_event_raw(event).await;
             return;
         };
@@ -3972,13 +3960,13 @@ mod handlers {
             rollout.is_some()
         };
         if !persistence_enabled {
-            let event = Event {
-                id: sub_id,
-                msg: EventMsg::Error(ErrorEvent {
+            let event = Event::new(
+                sub_id,
+                EventMsg::Error(ErrorEvent {
                     message: "Session persistence is disabled; cannot rename thread.".to_string(),
                     codex_error_info: Some(CodexErrorInfo::Other),
                 }),
-            };
+            );
             sess.send_event_raw(event).await;
             return;
         };
@@ -3987,13 +3975,13 @@ mod handlers {
         if let Err(e) =
             session_index::append_thread_name(&codex_home, sess.conversation_id, &name).await
         {
-            let event = Event {
-                id: sub_id,
-                msg: EventMsg::Error(ErrorEvent {
+            let event = Event::new(
+                sub_id,
+                EventMsg::Error(ErrorEvent {
                     message: format!("Failed to set thread name: {e}"),
                     codex_error_info: Some(CodexErrorInfo::Other),
                 }),
-            };
+            );
             sess.send_event_raw(event).await;
             return;
         }
@@ -4003,13 +3991,13 @@ mod handlers {
             state.session_configuration.thread_name = Some(name.clone());
         }
 
-        sess.send_event_raw(Event {
-            id: sub_id,
-            msg: EventMsg::ThreadNameUpdated(ThreadNameUpdatedEvent {
+        sess.send_event_raw(Event::new(
+            sub_id,
+            EventMsg::ThreadNameUpdated(ThreadNameUpdatedEvent {
                 thread_id: sess.conversation_id,
                 thread_name: Some(name),
             }),
-        })
+        ))
         .await;
     }
 
@@ -4042,20 +4030,17 @@ mod handlers {
             && let Err(e) = rec.shutdown().await
         {
             warn!("failed to shutdown rollout recorder: {e}");
-            let event = Event {
-                id: sub_id.clone(),
-                msg: EventMsg::Error(ErrorEvent {
+            let event = Event::new(
+                sub_id.clone(),
+                EventMsg::Error(ErrorEvent {
                     message: "Failed to shutdown rollout recorder".to_string(),
                     codex_error_info: Some(CodexErrorInfo::Other),
                 }),
-            };
+            );
             sess.send_event_raw(event).await;
         }
 
-        let event = Event {
-            id: sub_id,
-            msg: EventMsg::ShutdownComplete,
-        };
+        let event = Event::new(sub_id, EventMsg::ShutdownComplete);
         sess.send_event_raw(event).await;
         true
     }
@@ -4082,14 +4067,14 @@ mod handlers {
                 .await;
             }
             Err(err) => {
-                let event = Event {
-                    id: sub_id,
-                    msg: EventMsg::Error(ErrorEvent {
+                sess.send_event(
+                    &turn_context,
+                    EventMsg::Error(ErrorEvent {
                         message: err.to_string(),
                         codex_error_info: Some(CodexErrorInfo::Other),
                     }),
-                };
-                sess.send_event(&turn_context, event.msg).await;
+                )
+                .await;
             }
         }
     }

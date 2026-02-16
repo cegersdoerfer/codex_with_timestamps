@@ -216,9 +216,9 @@ impl ElicitationRequestManager {
                     lock.insert((server_name.clone(), id.clone()), tx);
                 }
                 let _ = tx_event
-                    .send(Event {
-                        id: "mcp_elicitation_request".to_string(),
-                        msg: EventMsg::ElicitationRequest(ElicitationRequestEvent {
+                    .send(Event::new(
+                        "mcp_elicitation_request",
+                        EventMsg::ElicitationRequest(ElicitationRequestEvent {
                             server_name,
                             id: match id.clone() {
                                 rmcp::model::NumberOrString::String(value) => {
@@ -239,7 +239,7 @@ impl ElicitationRequestManager {
                                 } => message,
                             },
                         }),
-                    })
+                    ))
                     .await;
                 rx.await
                     .context("elicitation request channel closed unexpectedly")
@@ -449,10 +449,10 @@ impl McpConnectionManager {
                 }
             }
             let _ = tx_event
-                .send(Event {
-                    id: INITIAL_SUBMIT_ID.to_owned(),
-                    msg: EventMsg::McpStartupComplete(summary),
-                })
+                .send(Event::new(
+                    INITIAL_SUBMIT_ID,
+                    EventMsg::McpStartupComplete(summary),
+                ))
                 .await;
         });
     }
@@ -835,10 +835,10 @@ async fn emit_update(
     update: McpStartupUpdateEvent,
 ) -> Result<(), async_channel::SendError<Event>> {
     tx_event
-        .send(Event {
-            id: INITIAL_SUBMIT_ID.to_owned(),
-            msg: EventMsg::McpStartupUpdate(update),
-        })
+        .send(Event::new(
+            INITIAL_SUBMIT_ID,
+            EventMsg::McpStartupUpdate(update),
+        ))
         .await
 }
 

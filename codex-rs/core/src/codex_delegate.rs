@@ -196,24 +196,25 @@ async fn forward_events(
                 match event {
                     // ignore all legacy delta events
                     Event {
-                        id: _,
                         msg: EventMsg::AgentMessageDelta(_) | EventMsg::AgentReasoningDelta(_),
+                        ..
                     } => {}
                     Event {
-                        id: _,
                         msg: EventMsg::TokenCount(_),
+                        ..
                     } => {}
                     Event {
-                        id: _,
                         msg: EventMsg::SessionConfigured(_),
+                        ..
                     } => {}
                     Event {
-                        id: _,
                         msg: EventMsg::ThreadNameUpdated(_),
+                        ..
                     } => {}
                     Event {
                         id,
                         msg: EventMsg::ExecApprovalRequest(event),
+                        ..
                     } => {
                         // Initiate approval via parent session; do not surface to consumer.
                         handle_exec_approval(
@@ -229,6 +230,7 @@ async fn forward_events(
                     Event {
                         id,
                         msg: EventMsg::ApplyPatchApprovalRequest(event),
+                        ..
                     } => {
                         handle_patch_approval(
                             &codex,
@@ -243,6 +245,7 @@ async fn forward_events(
                     Event {
                         id,
                         msg: EventMsg::RequestUserInput(event),
+                        ..
                     } => {
                         handle_request_user_input(
                             &codex,
@@ -478,13 +481,13 @@ mod tests {
 
         let (tx_out, rx_out) = bounded(1);
         tx_out
-            .send(Event {
-                id: "full".to_string(),
-                msg: EventMsg::TurnAborted(TurnAbortedEvent {
+            .send(Event::new(
+                "full",
+                EventMsg::TurnAborted(TurnAbortedEvent {
                     turn_id: Some("turn-1".to_string()),
                     reason: TurnAbortReason::Interrupted,
                 }),
-            })
+            ))
             .await
             .unwrap();
 
@@ -498,9 +501,9 @@ mod tests {
         ));
 
         tx_events
-            .send(Event {
-                id: "evt".to_string(),
-                msg: EventMsg::RawResponseItem(RawResponseItemEvent {
+            .send(Event::new(
+                "evt",
+                EventMsg::RawResponseItem(RawResponseItemEvent {
                     item: ResponseItem::CustomToolCall {
                         id: None,
                         status: None,
@@ -509,7 +512,7 @@ mod tests {
                         input: "{}".to_string(),
                     },
                 }),
-            })
+            ))
             .await
             .unwrap();
 

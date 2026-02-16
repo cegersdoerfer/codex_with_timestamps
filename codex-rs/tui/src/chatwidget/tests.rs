@@ -175,10 +175,7 @@ async fn resumed_initial_messages_render_history() {
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
 
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
 
     let cells = drain_insert_history(&mut rx);
     let mut merged_lines = Vec::new();
@@ -238,10 +235,7 @@ async fn replayed_user_message_preserves_text_elements_and_local_images() {
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
 
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
 
     let mut user_cell = None;
     while let Ok(ev) = rx.try_recv() {
@@ -297,10 +291,7 @@ async fn replayed_user_message_preserves_remote_image_urls() {
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
 
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
 
     let mut user_cell = None;
     while let Ok(ev) = rx.try_recv() {
@@ -353,10 +344,7 @@ async fn replayed_user_message_with_only_remote_images_renders_history_cell() {
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
 
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
 
     let mut user_cell = None;
     while let Ok(ev) = rx.try_recv() {
@@ -404,10 +392,7 @@ async fn replayed_user_message_with_only_local_images_does_not_render_history_ce
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
 
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
 
     let mut found_user_history_cell = false;
     while let Ok(ev) = rx.try_recv() {
@@ -508,10 +493,7 @@ async fn submission_preserves_text_elements_and_local_images() {
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let placeholder = "[Image #1]";
@@ -590,10 +572,7 @@ async fn submission_with_remote_and_local_images_keeps_local_placeholder_numberi
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let remote_url = "https://example.com/remote.png".to_string();
@@ -683,10 +662,7 @@ async fn enter_with_only_remote_images_submits_user_turn() {
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let remote_url = "https://example.com/remote-only.png".to_string();
@@ -745,10 +721,7 @@ async fn shift_enter_with_only_remote_images_does_not_submit_user_turn() {
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let remote_url = "https://example.com/remote-only.png".to_string();
@@ -783,10 +756,7 @@ async fn enter_with_only_remote_images_does_not_submit_when_modal_is_active() {
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let remote_url = "https://example.com/remote-only.png".to_string();
@@ -821,10 +791,7 @@ async fn enter_with_only_remote_images_does_not_submit_when_input_disabled() {
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let remote_url = "https://example.com/remote-only.png".to_string();
@@ -860,10 +827,7 @@ async fn submission_prefers_selected_duplicate_skill_path() {
         network_proxy: None,
         rollout_path: Some(rollout_file.path().to_path_buf()),
     };
-    chat.handle_codex_event(Event {
-        id: "initial".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("initial".into(), EventMsg::SessionConfigured(configured)));
     drain_insert_history(&mut rx);
 
     let repo_skill_path = PathBuf::from("/tmp/repo/figma/SKILL.md");
@@ -1115,13 +1079,10 @@ async fn interrupted_turn_restores_queued_messages_with_images_and_elements() {
 
     // When interrupted, queued messages are merged into the composer; image placeholders
     // must be renumbered to match the combined local image list.
-    chat.handle_codex_event(Event {
-        id: "interrupt".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("interrupt".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     let first = "[Image #1] first".to_string();
     let second = "[Image #2] second".to_string();
@@ -1180,13 +1141,10 @@ async fn interrupted_turn_restore_keeps_active_mode_for_resubmission() {
     });
     chat.refresh_queued_user_messages();
 
-    chat.handle_codex_event(Event {
-        id: "interrupt".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("interrupt".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     assert_eq!(chat.bottom_pane.composer_text(), "Implement the plan.");
     assert!(chat.queued_user_messages.is_empty());
@@ -1343,15 +1301,12 @@ async fn remap_placeholders_uses_byte_ranges_when_placeholder_missing() {
 async fn entered_review_mode_uses_request_hint() {
     let (mut chat, mut rx, _ops) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "review-start".into(),
-        msg: EventMsg::EnteredReviewMode(ReviewRequest {
+    chat.handle_codex_event(Event::new("review-start".into(), EventMsg::EnteredReviewMode(ReviewRequest {
             target: ReviewTarget::BaseBranch {
                 branch: "feature".to_string(),
             },
             user_facing_hint: Some("feature branch".to_string()),
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     let banner = lines_to_single_string(cells.last().expect("review banner"));
@@ -1364,13 +1319,10 @@ async fn entered_review_mode_uses_request_hint() {
 async fn entered_review_mode_defaults_to_current_changes_banner() {
     let (mut chat, mut rx, _ops) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "review-start".into(),
-        msg: EventMsg::EnteredReviewMode(ReviewRequest {
+    chat.handle_codex_event(Event::new("review-start".into(), EventMsg::EnteredReviewMode(ReviewRequest {
             target: ReviewTarget::UncommittedChanges,
             user_facing_hint: None,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     let banner = lines_to_single_string(cells.last().expect("review banner"));
@@ -1387,40 +1339,28 @@ async fn review_restores_context_window_indicator() {
     let pre_review_tokens = 12_700; // ~30% remaining after subtracting baseline.
     let review_tokens = 12_030; // ~97% remaining after subtracting baseline.
 
-    chat.handle_codex_event(Event {
-        id: "token-before".into(),
-        msg: EventMsg::TokenCount(TokenCountEvent {
+    chat.handle_codex_event(Event::new("token-before".into(), EventMsg::TokenCount(TokenCountEvent {
             info: Some(make_token_info(pre_review_tokens, context_window)),
             rate_limits: None,
-        }),
-    });
+        })));
     assert_eq!(chat.bottom_pane.context_window_percent(), Some(30));
 
-    chat.handle_codex_event(Event {
-        id: "review-start".into(),
-        msg: EventMsg::EnteredReviewMode(ReviewRequest {
+    chat.handle_codex_event(Event::new("review-start".into(), EventMsg::EnteredReviewMode(ReviewRequest {
             target: ReviewTarget::BaseBranch {
                 branch: "feature".to_string(),
             },
             user_facing_hint: Some("feature branch".to_string()),
-        }),
-    });
+        })));
 
-    chat.handle_codex_event(Event {
-        id: "token-review".into(),
-        msg: EventMsg::TokenCount(TokenCountEvent {
+    chat.handle_codex_event(Event::new("token-review".into(), EventMsg::TokenCount(TokenCountEvent {
             info: Some(make_token_info(review_tokens, context_window)),
             rate_limits: None,
-        }),
-    });
+        })));
     assert_eq!(chat.bottom_pane.context_window_percent(), Some(97));
 
-    chat.handle_codex_event(Event {
-        id: "review-end".into(),
-        msg: EventMsg::ExitedReviewMode(ExitedReviewModeEvent {
+    chat.handle_codex_event(Event::new("review-end".into(), EventMsg::ExitedReviewMode(ExitedReviewModeEvent {
             review_output: None,
-        }),
-    });
+        })));
     let _ = drain_insert_history(&mut rx);
 
     assert_eq!(chat.bottom_pane.context_window_percent(), Some(30));
@@ -1435,22 +1375,16 @@ async fn token_count_none_resets_context_indicator() {
     let context_window = 13_000;
     let pre_compact_tokens = 12_700;
 
-    chat.handle_codex_event(Event {
-        id: "token-before".into(),
-        msg: EventMsg::TokenCount(TokenCountEvent {
+    chat.handle_codex_event(Event::new("token-before".into(), EventMsg::TokenCount(TokenCountEvent {
             info: Some(make_token_info(pre_compact_tokens, context_window)),
             rate_limits: None,
-        }),
-    });
+        })));
     assert_eq!(chat.bottom_pane.context_window_percent(), Some(30));
 
-    chat.handle_codex_event(Event {
-        id: "token-cleared".into(),
-        msg: EventMsg::TokenCount(TokenCountEvent {
+    chat.handle_codex_event(Event::new("token-cleared".into(), EventMsg::TokenCount(TokenCountEvent {
             info: None,
             rate_limits: None,
-        }),
-    });
+        })));
     assert_eq!(chat.bottom_pane.context_window_percent(), None);
 }
 
@@ -1474,13 +1408,10 @@ async fn context_indicator_shows_used_tokens_when_window_unknown() {
         model_context_window: None,
     };
 
-    chat.handle_codex_event(Event {
-        id: "token-usage".into(),
-        msg: EventMsg::TokenCount(TokenCountEvent {
+    chat.handle_codex_event(Event::new("token-usage".into(), EventMsg::TokenCount(TokenCountEvent {
             info: Some(token_info),
             rate_limits: None,
-        }),
-    });
+        })));
 
     assert_eq!(chat.bottom_pane.context_window_percent(), None);
     assert_eq!(
@@ -2307,13 +2238,10 @@ async fn plan_implementation_popup_shows_once_when_replay_precedes_live_turn_com
         "expected no prompt for replayed turn completion, got {replay_popup:?}"
     );
 
-    chat.handle_codex_event(Event {
-        id: "live-turn-complete-1".to_string(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("live-turn-complete-1", EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: Some("Plan details".to_string()),
-        }),
-    });
+        })));
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
@@ -2328,13 +2256,10 @@ async fn plan_implementation_popup_shows_once_when_replay_precedes_live_turn_com
         "expected prompt to dismiss on Esc, got {dismissed_popup:?}"
     );
 
-    chat.handle_codex_event(Event {
-        id: "live-turn-complete-2".to_string(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("live-turn-complete-2", EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: Some("Plan details".to_string()),
-        }),
-    });
+        })));
     let duplicate_popup = render_bottom_popup(&chat, 80);
     assert!(
         !duplicate_popup.contains(PLAN_IMPLEMENTATION_TITLE),
@@ -2482,10 +2407,7 @@ async fn exec_approval_emits_proposed_command_and_decision_history() {
         proposed_execpolicy_amendment: None,
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-short".into(),
-        msg: EventMsg::ExecApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-short".into(), EventMsg::ExecApprovalRequest(ev)));
 
     let proposed_cells = drain_insert_history(&mut rx);
     assert!(
@@ -2527,10 +2449,7 @@ async fn exec_approval_decision_truncates_multiline_and_long_commands() {
         proposed_execpolicy_amendment: None,
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-multi".into(),
-        msg: EventMsg::ExecApprovalRequest(ev_multi),
-    });
+    chat.handle_codex_event(Event::new("sub-multi".into(), EventMsg::ExecApprovalRequest(ev_multi)));
     let proposed_multi = drain_insert_history(&mut rx);
     assert!(
         proposed_multi.is_empty(),
@@ -2578,10 +2497,7 @@ async fn exec_approval_decision_truncates_multiline_and_long_commands() {
         proposed_execpolicy_amendment: None,
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-long".into(),
-        msg: EventMsg::ExecApprovalRequest(ev_long),
-    });
+    chat.handle_codex_event(Event::new("sub-long".into(), EventMsg::ExecApprovalRequest(ev_long)));
     let proposed_long = drain_insert_history(&mut rx);
     assert!(
         proposed_long.is_empty(),
@@ -2620,10 +2536,7 @@ fn begin_exec_with_source(
         source,
         interaction_input,
     };
-    chat.handle_codex_event(Event {
-        id: call_id.to_string(),
-        msg: EventMsg::ExecCommandBegin(event.clone()),
-    });
+    chat.handle_codex_event(Event::new(call_id.to_string(), EventMsg::ExecCommandBegin(event.clone())));
     event
 }
 
@@ -2645,22 +2558,16 @@ fn begin_unified_exec_startup(
         source: ExecCommandSource::UnifiedExecStartup,
         interaction_input: None,
     };
-    chat.handle_codex_event(Event {
-        id: call_id.to_string(),
-        msg: EventMsg::ExecCommandBegin(event.clone()),
-    });
+    chat.handle_codex_event(Event::new(call_id.to_string(), EventMsg::ExecCommandBegin(event.clone())));
     event
 }
 
 fn terminal_interaction(chat: &mut ChatWidget, call_id: &str, process_id: &str, stdin: &str) {
-    chat.handle_codex_event(Event {
-        id: call_id.to_string(),
-        msg: EventMsg::TerminalInteraction(TerminalInteractionEvent {
+    chat.handle_codex_event(Event::new(call_id.to_string(), EventMsg::TerminalInteraction(TerminalInteractionEvent {
             call_id: call_id.to_string(),
             process_id: process_id.to_string(),
             stdin: stdin.to_string(),
-        }),
-    });
+        })));
 }
 
 fn complete_assistant_message(
@@ -2669,9 +2576,7 @@ fn complete_assistant_message(
     text: &str,
     phase: Option<MessagePhase>,
 ) {
-    chat.handle_codex_event(Event {
-        id: format!("raw-{item_id}"),
-        msg: EventMsg::ItemCompleted(ItemCompletedEvent {
+    chat.handle_codex_event(Event::new(format!("raw-{item_id}"), EventMsg::ItemCompleted(ItemCompletedEvent {
             thread_id: ThreadId::new(),
             turn_id: "turn-1".to_string(),
             item: TurnItem::AgentMessage(AgentMessageItem {
@@ -2681,8 +2586,7 @@ fn complete_assistant_message(
                 }],
                 phase,
             }),
-        }),
-    });
+        })));
 }
 
 fn begin_exec(chat: &mut ChatWidget, call_id: &str, raw_cmd: &str) -> ExecCommandBeginEvent {
@@ -2711,9 +2615,7 @@ fn end_exec(
         interaction_input,
         process_id,
     } = begin_event;
-    chat.handle_codex_event(Event {
-        id: call_id.clone(),
-        msg: EventMsg::ExecCommandEnd(ExecCommandEndEvent {
+    chat.handle_codex_event(Event::new(call_id.clone(), EventMsg::ExecCommandEnd(ExecCommandEndEvent {
             call_id,
             process_id,
             turn_id,
@@ -2733,8 +2635,7 @@ fn end_exec(
             } else {
                 CoreExecCommandStatus::Failed
             },
-        }),
-    });
+        })));
 }
 
 fn active_blob(chat: &ChatWidget) -> String {
@@ -3177,9 +3078,7 @@ async fn exec_end_without_begin_uses_event_command() {
     ];
     let parsed_cmd = codex_core::parse_command::parse_command(&command);
     let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    chat.handle_codex_event(Event {
-        id: "call-orphan".to_string(),
-        msg: EventMsg::ExecCommandEnd(ExecCommandEndEvent {
+    chat.handle_codex_event(Event::new("call-orphan", EventMsg::ExecCommandEnd(ExecCommandEndEvent {
             call_id: "call-orphan".to_string(),
             process_id: None,
             turn_id: "turn-1".to_string(),
@@ -3195,8 +3094,7 @@ async fn exec_end_without_begin_uses_event_command() {
             duration: std::time::Duration::from_millis(5),
             formatted_output: "done".to_string(),
             status: CoreExecCommandStatus::Completed,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert_eq!(cells.len(), 1, "expected finalized exec cell to flush");
@@ -3284,14 +3182,11 @@ async fn unified_exec_interaction_after_task_complete_is_suppressed() {
     chat.on_task_started();
     chat.on_task_complete(None, false);
 
-    chat.handle_codex_event(Event {
-        id: "call-1".to_string(),
-        msg: EventMsg::TerminalInteraction(TerminalInteractionEvent {
+    chat.handle_codex_event(Event::new("call-1", EventMsg::TerminalInteraction(TerminalInteractionEvent {
             call_id: "call-1".to_string(),
             process_id: "proc-1".to_string(),
             stdin: "ls\n".to_string(),
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert!(
@@ -3303,31 +3198,22 @@ async fn unified_exec_interaction_after_task_complete_is_suppressed() {
 #[tokio::test]
 async fn unified_exec_wait_after_final_agent_message_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
 
     begin_unified_exec_startup(&mut chat, "call-wait", "proc-1", "cargo test -p codex-core");
     terminal_interaction(&mut chat, "call-wait-stdin", "proc-1", "");
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::AgentMessage(AgentMessageEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::AgentMessage(AgentMessageEvent {
             message: "Final response.".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+        })));
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: Some("Final response.".into()),
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     let combined = cells
@@ -3340,14 +3226,11 @@ async fn unified_exec_wait_after_final_agent_message_snapshot() {
 #[tokio::test]
 async fn unified_exec_wait_before_streamed_agent_message_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
 
     begin_unified_exec_startup(
         &mut chat,
@@ -3357,19 +3240,13 @@ async fn unified_exec_wait_before_streamed_agent_message_snapshot() {
     );
     terminal_interaction(&mut chat, "call-wait-stream-stdin", "proc-1", "");
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
             delta: "Streaming response.".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+        })));
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     let combined = cells
@@ -3416,13 +3293,10 @@ async fn unified_exec_waiting_multiple_empty_snapshots() {
         "Waiting for background terminal · just fix"
     );
 
-    chat.handle_codex_event(Event {
-        id: "turn-wait-1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("turn-wait-1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     let combined = cells
@@ -3468,13 +3342,10 @@ async fn unified_exec_non_empty_then_empty_snapshots() {
         .collect::<String>();
     assert_snapshot!("unified_exec_non_empty_then_empty_active", active_combined);
 
-    chat.handle_codex_event(Event {
-        id: "turn-wait-3".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("turn-wait-3".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
 
     let post_cells = drain_insert_history(&mut rx);
     let mut combined = pre_cells
@@ -3668,10 +3539,7 @@ async fn plan_slash_command_with_args_submits_prompt_in_plan_mode() {
         network_proxy: None,
         rollout_path: None,
     };
-    chat.handle_codex_event(Event {
-        id: "configured".into(),
-        msg: EventMsg::SessionConfigured(configured),
-    });
+    chat.handle_codex_event(Event::new("configured".into(), EventMsg::SessionConfigured(configured)));
 
     chat.bottom_pane
         .set_composer_text("/plan build the plan".to_string(), Vec::new(), Vec::new());
@@ -4010,24 +3878,18 @@ async fn slash_rollout_handles_missing_path() {
 async fn undo_success_events_render_info_messages() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".to_string(),
-        msg: EventMsg::UndoStarted(UndoStartedEvent {
+    chat.handle_codex_event(Event::new("turn-1", EventMsg::UndoStarted(UndoStartedEvent {
             message: Some("Undo requested for the last turn...".to_string()),
-        }),
-    });
+        })));
     assert!(
         chat.bottom_pane.status_indicator_visible(),
         "status indicator should be visible during undo"
     );
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".to_string(),
-        msg: EventMsg::UndoCompleted(UndoCompletedEvent {
+    chat.handle_codex_event(Event::new("turn-1", EventMsg::UndoCompleted(UndoCompletedEvent {
             success: true,
             message: None,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert_eq!(cells.len(), 1, "expected final status only");
@@ -4047,22 +3909,16 @@ async fn undo_success_events_render_info_messages() {
 async fn undo_failure_events_render_error_message() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "turn-2".to_string(),
-        msg: EventMsg::UndoStarted(UndoStartedEvent { message: None }),
-    });
+    chat.handle_codex_event(Event::new("turn-2", EventMsg::UndoStarted(UndoStartedEvent { message: None })));
     assert!(
         chat.bottom_pane.status_indicator_visible(),
         "status indicator should be visible during undo"
     );
 
-    chat.handle_codex_event(Event {
-        id: "turn-2".to_string(),
-        msg: EventMsg::UndoCompleted(UndoCompletedEvent {
+    chat.handle_codex_event(Event::new("turn-2", EventMsg::UndoCompleted(UndoCompletedEvent {
             success: false,
             message: Some("Failed to restore workspace state.".to_string()),
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert_eq!(cells.len(), 1, "expected final status only");
@@ -4082,10 +3938,7 @@ async fn undo_failure_events_render_error_message() {
 async fn undo_started_hides_interrupt_hint() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "turn-hint".to_string(),
-        msg: EventMsg::UndoStarted(UndoStartedEvent { message: None }),
-    });
+    chat.handle_codex_event(Event::new("turn-hint", EventMsg::UndoStarted(UndoStartedEvent { message: None })));
 
     let status = chat
         .bottom_pane
@@ -4205,13 +4058,10 @@ async fn view_image_tool_call_adds_history_cell() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
     let image_path = chat.config.cwd.join("example.png");
 
-    chat.handle_codex_event(Event {
-        id: "sub-image".into(),
-        msg: EventMsg::ViewImageToolCall(ViewImageToolCallEvent {
+    chat.handle_codex_event(Event::new("sub-image".into(), EventMsg::ViewImageToolCall(ViewImageToolCallEvent {
             call_id: "call-image".into(),
             path: image_path,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert_eq!(cells.len(), 1, "expected a single history cell");
@@ -4230,13 +4080,10 @@ async fn interrupt_exec_marks_failed_snapshot() {
 
     // Simulate the task being aborted (as if ESC was pressed), which should
     // cause the active exec cell to be finalized as failed and flushed.
-    chat.handle_codex_event(Event {
-        id: "call-int".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("call-int".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert!(
@@ -4256,23 +4103,17 @@ async fn interrupted_turn_error_message_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
     // Simulate an in-progress task so the widget is in a running state.
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
 
     // Abort the turn (like pressing Esc) and drain inserted history.
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert!(
@@ -4947,13 +4788,10 @@ async fn server_overloaded_error_does_not_switch_models() {
     while rx.try_recv().is_ok() {}
     while op_rx.try_recv().is_ok() {}
 
-    chat.handle_codex_event(Event {
-        id: "err-1".to_string(),
-        msg: EventMsg::Error(ErrorEvent {
+    chat.handle_codex_event(Event::new("err-1", EventMsg::Error(ErrorEvent {
             message: "server overloaded".to_string(),
             codex_error_info: Some(CodexErrorInfo::ServerOverloaded),
-        }),
-    });
+        })));
 
     while let Ok(event) = rx.try_recv() {
         if let AppEvent::UpdateModel(model) = event {
@@ -5653,10 +5491,7 @@ async fn approval_modal_exec_snapshot() -> anyhow::Result<()> {
         ])),
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-approve".into(),
-        msg: EventMsg::ExecApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-approve".into(), EventMsg::ExecApprovalRequest(ev)));
     // Render to a fixed-size test terminal and snapshot.
     // Call desired_height first and use that exact height for rendering.
     let width = 100;
@@ -5710,10 +5545,7 @@ async fn approval_modal_exec_without_reason_snapshot() -> anyhow::Result<()> {
         ])),
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-approve-noreason".into(),
-        msg: EventMsg::ExecApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-approve-noreason".into(), EventMsg::ExecApprovalRequest(ev)));
 
     let width = 100;
     let height = chat.desired_height(width);
@@ -5754,10 +5586,7 @@ async fn approval_modal_exec_multiline_prefix_hides_execpolicy_option_snapshot()
         proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-approve-multiline-trunc".into(),
-        msg: EventMsg::ExecApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-approve-multiline-trunc".into(), EventMsg::ExecApprovalRequest(ev)));
 
     let width = 100;
     let height = chat.desired_height(width);
@@ -5801,10 +5630,7 @@ async fn approval_modal_patch_snapshot() -> anyhow::Result<()> {
         reason: Some("The model wants to apply changes".into()),
         grant_root: Some(PathBuf::from("/tmp")),
     };
-    chat.handle_codex_event(Event {
-        id: "sub-approve-patch".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-approve-patch".into(), EventMsg::ApplyPatchApprovalRequest(ev)));
 
     // Render at the widget's desired height and snapshot.
     let height = chat.desired_height(80);
@@ -5837,13 +5663,10 @@ async fn interrupt_restores_queued_messages_into_composer() {
     chat.refresh_queued_user_messages();
 
     // Deliver a TurnAborted event with Interrupted reason (as if Esc was pressed).
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     // Composer should now contain the queued messages joined by newlines, in order.
     assert_eq!(
@@ -5876,13 +5699,10 @@ async fn interrupt_prepends_queued_messages_before_existing_composer_text() {
         .push_back(UserMessage::from("second queued".to_string()));
     chat.refresh_queued_user_messages();
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     assert_eq!(
         chat.bottom_pane.composer_text(),
@@ -5905,13 +5725,10 @@ async fn interrupt_clears_unified_exec_processes() {
     begin_unified_exec_startup(&mut chat, "call-2", "process-2", "sleep 6");
     assert_eq!(chat.unified_exec_processes.len(), 2);
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     assert!(chat.unified_exec_processes.is_empty());
 
@@ -5926,13 +5743,10 @@ async fn review_ended_keeps_unified_exec_processes() {
     begin_unified_exec_startup(&mut chat, "call-2", "process-2", "sleep 6");
     assert_eq!(chat.unified_exec_processes.len(), 2);
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::ReviewEnded,
-        }),
-    });
+        })));
 
     assert_eq!(chat.unified_exec_processes.len(), 2);
 
@@ -5959,25 +5773,19 @@ async fn review_ended_keeps_unified_exec_processes() {
 async fn interrupt_clears_unified_exec_wait_streak_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
 
     let begin = begin_unified_exec_startup(&mut chat, "call-1", "process-1", "just fix");
     terminal_interaction(&mut chat, "call-1a", "process-1", "");
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     end_exec(&mut chat, begin, "", "", 0);
     let cells = drain_insert_history(&mut rx);
@@ -5998,13 +5806,10 @@ async fn turn_complete_keeps_unified_exec_processes() {
     begin_unified_exec_startup(&mut chat, "call-2", "process-2", "sleep 6");
     assert_eq!(chat.unified_exec_processes.len(), 2);
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
 
     assert_eq!(chat.unified_exec_processes.len(), 2);
 
@@ -6052,20 +5857,14 @@ async fn ui_snapshots_small_heights_task_running() {
     use ratatui::backend::TestBackend;
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
     // Activate status line
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+        })));
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "**Thinking**".into(),
-        }),
-    });
+        })));
     for h in [1u16, 2, 3] {
         let name = format!("chat_small_running_h{h}");
         let mut terminal = Terminal::new(TestBackend::new(40, h)).expect("create terminal");
@@ -6085,21 +5884,15 @@ async fn status_widget_and_approval_modal_snapshot() {
 
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
     // Begin a running task so the status indicator would be active.
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
     // Provide a deterministic header for the status line.
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "**Analyzing**".into(),
-        }),
-    });
+        })));
 
     // Now show an approval modal (e.g. exec approval).
     let ev = ExecApprovalRequestEvent {
@@ -6117,10 +5910,7 @@ async fn status_widget_and_approval_modal_snapshot() {
         ])),
         parsed_cmd: vec![],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-approve-exec".into(),
-        msg: EventMsg::ExecApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-approve-exec".into(), EventMsg::ExecApprovalRequest(ev)));
 
     // Render at the widget's desired height and snapshot.
     let width: u16 = 100;
@@ -6140,21 +5930,15 @@ async fn status_widget_and_approval_modal_snapshot() {
 async fn status_widget_active_snapshot() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
     // Activate the status indicator by simulating a task start.
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
     // Provide a deterministic header via a bold reasoning chunk.
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "**Analyzing**".into(),
-        }),
-    });
+        })));
     // Render and snapshot.
     let height = chat.desired_height(80);
     let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(80, height))
@@ -6170,13 +5954,10 @@ async fn mcp_startup_header_booting_snapshot() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
     chat.show_welcome_banner = false;
 
-    chat.handle_codex_event(Event {
-        id: "mcp-1".into(),
-        msg: EventMsg::McpStartupUpdate(McpStartupUpdateEvent {
+    chat.handle_codex_event(Event::new("mcp-1".into(), EventMsg::McpStartupUpdate(McpStartupUpdateEvent {
             server: "alpha".into(),
             status: McpStartupStatus::Starting,
-        }),
-    });
+        })));
 
     let height = chat.desired_height(80);
     let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(80, height))
@@ -6191,25 +5972,19 @@ async fn mcp_startup_header_booting_snapshot() {
 async fn mcp_startup_complete_does_not_clear_running_task() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "task-1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("task-1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
 
     assert!(chat.bottom_pane.is_task_running());
     assert!(chat.bottom_pane.status_indicator_visible());
 
-    chat.handle_codex_event(Event {
-        id: "mcp-1".into(),
-        msg: EventMsg::McpStartupComplete(McpStartupCompleteEvent {
+    chat.handle_codex_event(Event::new("mcp-1".into(), EventMsg::McpStartupComplete(McpStartupCompleteEvent {
             ready: vec!["schaltwerk".into()],
             ..Default::default()
-        }),
-    });
+        })));
 
     assert!(chat.bottom_pane.is_task_running());
     assert!(chat.bottom_pane.status_indicator_visible());
@@ -6219,12 +5994,9 @@ async fn mcp_startup_complete_does_not_clear_running_task() {
 async fn background_event_updates_status_header() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
-    chat.handle_codex_event(Event {
-        id: "bg-1".into(),
-        msg: EventMsg::BackgroundEvent(BackgroundEventEvent {
+    chat.handle_codex_event(Event::new("bg-1".into(), EventMsg::BackgroundEvent(BackgroundEventEvent {
             message: "Waiting for `vim`".to_string(),
-        }),
-    });
+        })));
 
     assert!(chat.bottom_pane.status_indicator_visible());
     assert_eq!(chat.current_status_header, "Waiting for `vim`");
@@ -6250,10 +6022,7 @@ async fn apply_patch_events_emit_history_cells() {
         reason: None,
         grant_root: None,
     };
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::ApplyPatchApprovalRequest(ev)));
     let cells = drain_insert_history(&mut rx);
     assert!(
         cells.is_empty(),
@@ -6290,10 +6059,7 @@ async fn apply_patch_events_emit_history_cells() {
         auto_approved: true,
         changes: changes2,
     };
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::PatchApplyBegin(begin),
-    });
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::PatchApplyBegin(begin)));
     let cells = drain_insert_history(&mut rx);
     assert!(!cells.is_empty(), "expected apply block cell to be sent");
     let blob = lines_to_single_string(cells.last().unwrap());
@@ -6319,10 +6085,7 @@ async fn apply_patch_events_emit_history_cells() {
         changes: end_changes,
         status: CorePatchApplyStatus::Completed,
     };
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::PatchApplyEnd(end),
-    });
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::PatchApplyEnd(end)));
     let cells = drain_insert_history(&mut rx);
     assert!(
         cells.is_empty(),
@@ -6341,16 +6104,13 @@ async fn apply_patch_manual_approval_adjusts_header() {
             content: "hello\n".to_string(),
         },
     );
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
             call_id: "c1".into(),
             turn_id: "turn-c1".into(),
             changes: proposed_changes,
             reason: None,
             grant_root: None,
-        }),
-    });
+        })));
     drain_insert_history(&mut rx);
 
     let mut apply_changes = HashMap::new();
@@ -6360,15 +6120,12 @@ async fn apply_patch_manual_approval_adjusts_header() {
             content: "hello\n".to_string(),
         },
     );
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::PatchApplyBegin(PatchApplyBeginEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::PatchApplyBegin(PatchApplyBeginEvent {
             call_id: "c1".into(),
             turn_id: "turn-c1".into(),
             auto_approved: false,
             changes: apply_changes,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert!(!cells.is_empty(), "expected apply block cell to be sent");
@@ -6390,16 +6147,13 @@ async fn apply_patch_manual_flow_snapshot() {
             content: "hello\n".to_string(),
         },
     );
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
             call_id: "c1".into(),
             turn_id: "turn-c1".into(),
             changes: proposed_changes,
             reason: Some("Manual review required".into()),
             grant_root: None,
-        }),
-    });
+        })));
     let history_before_apply = drain_insert_history(&mut rx);
     assert!(
         history_before_apply.is_empty(),
@@ -6413,15 +6167,12 @@ async fn apply_patch_manual_flow_snapshot() {
             content: "hello\n".to_string(),
         },
     );
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::PatchApplyBegin(PatchApplyBeginEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::PatchApplyBegin(PatchApplyBeginEvent {
             call_id: "c1".into(),
             turn_id: "turn-c1".into(),
             auto_approved: false,
             changes: apply_changes,
-        }),
-    });
+        })));
     let approved_lines = drain_insert_history(&mut rx)
         .pop()
         .expect("approved patch cell");
@@ -6450,10 +6201,7 @@ async fn apply_patch_approval_sends_op_with_call_id() {
         reason: None,
         grant_root: None,
     };
-    chat.handle_codex_event(Event {
-        id: "sub-123".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ev),
-    });
+    chat.handle_codex_event(Event::new("sub-123".into(), EventMsg::ApplyPatchApprovalRequest(ev)));
 
     // Approve via key press 'y'
     chat.handle_key_event(KeyEvent::new(KeyCode::Char('y'), KeyModifiers::NONE));
@@ -6481,16 +6229,13 @@ async fn apply_patch_full_flow_integration_like() {
         PathBuf::from("pkg.rs"),
         FileChange::Add { content: "".into() },
     );
-    chat.handle_codex_event(Event {
-        id: "sub-xyz".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
+    chat.handle_codex_event(Event::new("sub-xyz".into(), EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
             call_id: "call-1".into(),
             turn_id: "turn-call-1".into(),
             changes,
             reason: None,
             grant_root: None,
-        }),
-    });
+        })));
 
     // 2) User approves via 'y' and App receives a CodexOp
     chat.handle_key_event(KeyEvent::new(KeyCode::Char('y'), KeyModifiers::NONE));
@@ -6522,23 +6267,18 @@ async fn apply_patch_full_flow_integration_like() {
         PathBuf::from("pkg.rs"),
         FileChange::Add { content: "".into() },
     );
-    chat.handle_codex_event(Event {
-        id: "sub-xyz".into(),
-        msg: EventMsg::PatchApplyBegin(PatchApplyBeginEvent {
+    chat.handle_codex_event(Event::new("sub-xyz".into(), EventMsg::PatchApplyBegin(PatchApplyBeginEvent {
             call_id: "call-1".into(),
             turn_id: "turn-call-1".into(),
             auto_approved: false,
             changes: changes2,
-        }),
-    });
+        })));
     let mut end_changes = HashMap::new();
     end_changes.insert(
         PathBuf::from("pkg.rs"),
         FileChange::Add { content: "".into() },
     );
-    chat.handle_codex_event(Event {
-        id: "sub-xyz".into(),
-        msg: EventMsg::PatchApplyEnd(PatchApplyEndEvent {
+    chat.handle_codex_event(Event::new("sub-xyz".into(), EventMsg::PatchApplyEnd(PatchApplyEndEvent {
             call_id: "call-1".into(),
             turn_id: "turn-call-1".into(),
             stdout: String::from("ok"),
@@ -6546,8 +6286,7 @@ async fn apply_patch_full_flow_integration_like() {
             success: true,
             changes: end_changes,
             status: CorePatchApplyStatus::Completed,
-        }),
-    });
+        })));
 }
 
 #[tokio::test]
@@ -6565,16 +6304,13 @@ async fn apply_patch_untrusted_shows_approval_modal() -> anyhow::Result<()> {
         PathBuf::from("a.rs"),
         FileChange::Add { content: "".into() },
     );
-    chat.handle_codex_event(Event {
-        id: "sub-1".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
+    chat.handle_codex_event(Event::new("sub-1".into(), EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
             call_id: "call-1".into(),
             turn_id: "turn-call-1".into(),
             changes,
             reason: None,
             grant_root: None,
-        }),
-    });
+        })));
 
     // Render and ensure the approval modal title is present
     let area = Rect::new(0, 0, 80, 12);
@@ -6619,16 +6355,13 @@ async fn apply_patch_request_shows_diff_summary() -> anyhow::Result<()> {
             content: "line one\nline two\n".into(),
         },
     );
-    chat.handle_codex_event(Event {
-        id: "sub-apply".into(),
-        msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
+    chat.handle_codex_event(Event::new("sub-apply".into(), EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
             call_id: "call-apply".into(),
             turn_id: "turn-apply".into(),
             changes,
             reason: None,
             grant_root: None,
-        }),
-    });
+        })));
 
     // No history entries yet; the modal should contain the diff summary
     let cells = drain_insert_history(&mut rx);
@@ -6691,10 +6424,7 @@ async fn plan_update_renders_history_cell() {
             },
         ],
     };
-    chat.handle_codex_event(Event {
-        id: "sub-1".into(),
-        msg: EventMsg::PlanUpdate(update),
-    });
+    chat.handle_codex_event(Event::new("sub-1".into(), EventMsg::PlanUpdate(update)));
     let cells = drain_insert_history(&mut rx);
     assert!(!cells.is_empty(), "expected plan update cell to be sent");
     let blob = lines_to_single_string(cells.last().unwrap());
@@ -6713,14 +6443,11 @@ async fn stream_error_updates_status_indicator() {
     chat.bottom_pane.set_task_running(true);
     let msg = "Reconnecting... 2/5";
     let details = "Idle timeout waiting for SSE";
-    chat.handle_codex_event(Event {
-        id: "sub-1".into(),
-        msg: EventMsg::StreamError(StreamErrorEvent {
+    chat.handle_codex_event(Event::new("sub-1".into(), EventMsg::StreamError(StreamErrorEvent {
             message: msg.to_string(),
             codex_error_info: Some(CodexErrorInfo::Other),
             additional_details: Some(details.to_string()),
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert!(
@@ -6746,14 +6473,11 @@ async fn stream_error_restores_hidden_status_indicator() {
 
     let msg = "Reconnecting... 2/5";
     let details = "Idle timeout waiting for SSE";
-    chat.handle_codex_event(Event {
-        id: "sub-1".into(),
-        msg: EventMsg::StreamError(StreamErrorEvent {
+    chat.handle_codex_event(Event::new("sub-1".into(), EventMsg::StreamError(StreamErrorEvent {
             message: msg.to_string(),
             codex_error_info: Some(CodexErrorInfo::Other),
             additional_details: Some(details.to_string()),
-        }),
-    });
+        })));
 
     let status = chat
         .bottom_pane
@@ -6766,12 +6490,9 @@ async fn stream_error_restores_hidden_status_indicator() {
 #[tokio::test]
 async fn warning_event_adds_warning_history_cell() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
-    chat.handle_codex_event(Event {
-        id: "sub-1".into(),
-        msg: EventMsg::Warning(WarningEvent {
+    chat.handle_codex_event(Event::new("sub-1".into(), EventMsg::Warning(WarningEvent {
             message: "test warning message".to_string(),
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     assert_eq!(cells.len(), 1, "expected one warning history cell");
@@ -6832,13 +6553,10 @@ async fn status_line_branch_refreshes_after_turn_complete() {
     chat.status_line_branch_lookup_complete = true;
     chat.status_line_branch_pending = false;
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
 
     assert!(chat.status_line_branch_pending);
 }
@@ -6850,13 +6568,10 @@ async fn status_line_branch_refreshes_after_interrupt() {
     chat.status_line_branch_lookup_complete = true;
     chat.status_line_branch_pending = false;
 
-    chat.handle_codex_event(Event {
-        id: "turn-1".into(),
-        msg: EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
+    chat.handle_codex_event(Event::new("turn-1".into(), EventMsg::TurnAborted(codex_core::protocol::TurnAbortedEvent {
             turn_id: Some("turn-1".to_string()),
             reason: TurnAbortReason::Interrupted,
-        }),
-    });
+        })));
 
     assert!(chat.status_line_branch_pending);
 }
@@ -6864,30 +6579,21 @@ async fn status_line_branch_refreshes_after_interrupt() {
 #[tokio::test]
 async fn stream_recovery_restores_previous_status_header() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
-    chat.handle_codex_event(Event {
-        id: "task".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("task".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
     drain_insert_history(&mut rx);
-    chat.handle_codex_event(Event {
-        id: "retry".into(),
-        msg: EventMsg::StreamError(StreamErrorEvent {
+    chat.handle_codex_event(Event::new("retry".into(), EventMsg::StreamError(StreamErrorEvent {
             message: "Reconnecting... 1/5".to_string(),
             codex_error_info: Some(CodexErrorInfo::Other),
             additional_details: None,
-        }),
-    });
+        })));
     drain_insert_history(&mut rx);
-    chat.handle_codex_event(Event {
-        id: "delta".into(),
-        msg: EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
+    chat.handle_codex_event(Event::new("delta".into(), EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
             delta: "hello".to_string(),
-        }),
-    });
+        })));
 
     let status = chat
         .bottom_pane
@@ -6947,39 +6653,27 @@ async fn multiple_agent_messages_in_single_turn_emit_multiple_headers() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
     // Begin turn
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
 
     // First finalized assistant message
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentMessage(AgentMessageEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentMessage(AgentMessageEvent {
             message: "First message".into(),
-        }),
-    });
+        })));
 
     // Second finalized assistant message in the same turn
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentMessage(AgentMessageEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentMessage(AgentMessageEvent {
             message: "Second message".into(),
-        }),
-    });
+        })));
 
     // End turn
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
 
     let cells = drain_insert_history(&mut rx);
     let combined: String = cells
@@ -7004,18 +6698,12 @@ async fn final_reasoning_then_message_without_deltas_are_rendered() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
     // No deltas; only final reasoning followed by final message.
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentReasoning(AgentReasoningEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentReasoning(AgentReasoningEvent {
             text: "I will first analyze the request.".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentMessage(AgentMessageEvent {
+        })));
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentMessage(AgentMessageEvent {
             message: "Here is the result.".into(),
-        }),
-    });
+        })));
 
     // Drain history and snapshot the combined visible content.
     let cells = drain_insert_history(&mut rx);
@@ -7031,51 +6719,30 @@ async fn deltas_then_same_final_message_are_rendered_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
 
     // Stream some reasoning deltas first.
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "I will ".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+        })));
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "first analyze the ".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+        })));
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "request.".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentReasoning(AgentReasoningEvent {
+        })));
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentReasoning(AgentReasoningEvent {
             text: "request.".into(),
-        }),
-    });
+        })));
 
     // Then stream answer deltas, followed by the exact same final message.
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
             delta: "Here is the ".into(),
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
+        })));
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentMessageDelta(AgentMessageDeltaEvent {
             delta: "result.".into(),
-        }),
-    });
+        })));
 
-    chat.handle_codex_event(Event {
-        id: "s1".into(),
-        msg: EventMsg::AgentMessage(AgentMessageEvent {
+    chat.handle_codex_event(Event::new("s1".into(), EventMsg::AgentMessage(AgentMessageEvent {
             message: "Here is the result.".into(),
-        }),
-    });
+        })));
 
     // Snapshot the combined visible content to ensure we render as expected
     // when deltas are followed by the identical final message.
@@ -7093,10 +6760,7 @@ async fn deltas_then_same_final_message_are_rendered_snapshot() {
 #[tokio::test]
 async fn chatwidget_exec_and_status_layout_vt100_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
-    chat.handle_codex_event(Event {
-        id: "t1".into(),
-        msg: EventMsg::AgentMessage(AgentMessageEvent { message: "I’m going to search the repo for where “Change Approved” is rendered to update that view.".into() }),
-    });
+    chat.handle_codex_event(Event::new("t1".into(), EventMsg::AgentMessage(AgentMessageEvent { message: "I’m going to search the repo for where “Change Approved” is rendered to update that view.".into() })));
 
     let command = vec!["bash".into(), "-lc".into(), "rg \"Change Approved\"".into()];
     let parsed_cmd = vec![
@@ -7112,9 +6776,7 @@ async fn chatwidget_exec_and_status_layout_vt100_snapshot() {
         },
     ];
     let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    chat.handle_codex_event(Event {
-        id: "c1".into(),
-        msg: EventMsg::ExecCommandBegin(ExecCommandBeginEvent {
+    chat.handle_codex_event(Event::new("c1".into(), EventMsg::ExecCommandBegin(ExecCommandBeginEvent {
             call_id: "c1".into(),
             process_id: None,
             turn_id: "turn-1".into(),
@@ -7123,11 +6785,8 @@ async fn chatwidget_exec_and_status_layout_vt100_snapshot() {
             parsed_cmd: parsed_cmd.clone(),
             source: ExecCommandSource::Agent,
             interaction_input: None,
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "c1".into(),
-        msg: EventMsg::ExecCommandEnd(ExecCommandEndEvent {
+        })));
+    chat.handle_codex_event(Event::new("c1".into(), EventMsg::ExecCommandEnd(ExecCommandEndEvent {
             call_id: "c1".into(),
             process_id: None,
             turn_id: "turn-1".into(),
@@ -7143,22 +6802,15 @@ async fn chatwidget_exec_and_status_layout_vt100_snapshot() {
             duration: std::time::Duration::from_millis(16000),
             formatted_output: String::new(),
             status: CoreExecCommandStatus::Completed,
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "t1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+        })));
+    chat.handle_codex_event(Event::new("t1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
-    chat.handle_codex_event(Event {
-        id: "t1".into(),
-        msg: EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
+        })));
+    chat.handle_codex_event(Event::new("t1".into(), EventMsg::AgentReasoningDelta(AgentReasoningDeltaEvent {
             delta: "**Investigating rendering code**".into(),
-        }),
-    });
+        })));
     chat.bottom_pane.set_composer_text(
         "Summarize recent commits".to_string(),
         Vec::new(),
@@ -7194,14 +6846,11 @@ async fn chatwidget_markdown_code_blocks_vt100_snapshot() {
 
     // Simulate a final agent message via streaming deltas instead of a single message
 
-    chat.handle_codex_event(Event {
-        id: "t1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("t1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
     // Build a vt100 visual from the history insertions only (no UI overlay)
     let width: u16 = 80;
     let height: u16 = 50;
@@ -7244,10 +6893,7 @@ printf 'fenced within fenced\n'
             delta.push(c2);
         }
 
-        chat.handle_codex_event(Event {
-            id: "t1".into(),
-            msg: EventMsg::AgentMessageDelta(AgentMessageDeltaEvent { delta }),
-        });
+        chat.handle_codex_event(Event::new("t1".into(), EventMsg::AgentMessageDelta(AgentMessageDeltaEvent { delta })));
         // Drive commit ticks and drain emitted history lines into the vt100 buffer.
         loop {
             chat.on_commit_tick();
@@ -7267,13 +6913,10 @@ printf 'fenced within fenced\n'
     }
 
     // Finalize the stream without sending a final AgentMessage, to flush any tail.
-    chat.handle_codex_event(Event {
-        id: "t1".into(),
-        msg: EventMsg::TurnComplete(TurnCompleteEvent {
+    chat.handle_codex_event(Event::new("t1".into(), EventMsg::TurnComplete(TurnCompleteEvent {
             turn_id: "turn-1".to_string(),
             last_agent_message: None,
-        }),
-    });
+        })));
     for lines in drain_insert_history(&mut rx) {
         crate::insert_history::insert_history_lines(&mut term, lines)
             .expect("Failed to insert history lines in test");
@@ -7286,14 +6929,11 @@ printf 'fenced within fenced\n'
 async fn chatwidget_tall() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
     chat.thread_id = Some(ThreadId::new());
-    chat.handle_codex_event(Event {
-        id: "t1".into(),
-        msg: EventMsg::TurnStarted(TurnStartedEvent {
+    chat.handle_codex_event(Event::new("t1".into(), EventMsg::TurnStarted(TurnStartedEvent {
             turn_id: "turn-1".to_string(),
             model_context_window: None,
             collaboration_mode_kind: ModeKind::Default,
-        }),
-    });
+        })));
     for i in 0..30 {
         chat.queue_user_message(format!("Hello, world! {i}").into());
     }
@@ -7315,13 +6955,10 @@ async fn review_queues_user_messages_snapshot() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(None).await;
     chat.thread_id = Some(ThreadId::new());
 
-    chat.handle_codex_event(Event {
-        id: "review-1".into(),
-        msg: EventMsg::EnteredReviewMode(ReviewRequest {
+    chat.handle_codex_event(Event::new("review-1".into(), EventMsg::EnteredReviewMode(ReviewRequest {
             target: ReviewTarget::UncommittedChanges,
             user_facing_hint: Some("current changes".to_string()),
-        }),
-    });
+        })));
     let _ = drain_insert_history(&mut rx);
 
     chat.queue_user_message(UserMessage::from(

@@ -292,9 +292,7 @@ mod tests {
 
         let thread_id = ThreadId::new();
         let rollout_file = NamedTempFile::new()?;
-        let event = Event {
-            id: "1".to_string(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        let event = Event::new("1", EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id: thread_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -309,8 +307,7 @@ mod tests {
                 initial_messages: None,
                 network_proxy: None,
                 rollout_path: Some(rollout_file.path().to_path_buf()),
-            }),
-        };
+            }));
 
         outgoing_message_sender
             .send_event_as_notification(&event, None)
@@ -352,10 +349,7 @@ mod tests {
             network_proxy: None,
             rollout_path: Some(rollout_file.path().to_path_buf()),
         };
-        let event = Event {
-            id: "1".to_string(),
-            msg: EventMsg::SessionConfigured(session_configured_event.clone()),
-        };
+        let event = Event::new("1", EventMsg::SessionConfigured(session_configured_event.clone()));
         let meta = OutgoingNotificationMeta {
             request_id: Some(RequestId::String("123".into())),
             thread_id: None,
@@ -418,10 +412,7 @@ mod tests {
             network_proxy: None,
             rollout_path: Some(rollout_file.path().to_path_buf()),
         };
-        let event = Event {
-            id: "1".to_string(),
-            msg: EventMsg::SessionConfigured(session_configured_event.clone()),
-        };
+        let event = Event::new("1", EventMsg::SessionConfigured(session_configured_event.clone()));
         let meta = OutgoingNotificationMeta {
             request_id: Some(RequestId::String("123".into())),
             thread_id: Some(thread_id),

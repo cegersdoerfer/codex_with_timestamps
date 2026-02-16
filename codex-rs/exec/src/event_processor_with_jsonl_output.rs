@@ -838,34 +838,40 @@ impl From<CoreAgentStatus> for CollabAgentState {
 }
 
 /// Serializes a `ThreadEvent` to a JSON string with an added `timestamp` field.
-/// The timestamp is an ISO 8601 string with millisecond precision in UTC (e.g.
-/// `"2026-02-16T12:34:56.789Z"`).
-pub fn serialize_event_with_timestamp(event: &ThreadEvent) -> Result<String, serde_json::Error> {
+///
+/// When `source_timestamp` is non-empty it is used as-is (this is the timestamp
+/// captured when the protocol event was created, before it entered the async
+/// channel). Otherwise falls back to `Utc::now()`.
+pub fn serialize_event_with_timestamp(
+    event: &ThreadEvent,
+    source_timestamp: &str,
+) -> Result<String, serde_json::Error> {
     let mut value = serde_json::to_value(event)?;
     if let serde_json::Value::Object(ref mut map) = value {
-        map.insert(
-            "timestamp".to_string(),
-            serde_json::Value::String(
-                Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
-            ),
-        );
+        let ts = if source_timestamp.is_empty() {
+            Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+        } else {
+            source_timestamp.to_string()
+        };
+        map.insert("timestamp".to_string(), serde_json::Value::String(ts));
     }
     serde_json::to_string(&value)
 }
 
 impl EventProcessor for EventProcessorWithJsonOutput {
     fn print_config_summary(&mut self, _: &Config, _: &str, ev: &protocol::SessionConfiguredEvent) {
-        self.process_event(protocol::Event {
-            id: "".to_string(),
-            msg: protocol::EventMsg::SessionConfigured(ev.clone()),
-        });
+        self.process_event(protocol::Event::new(
+            "",
+            protocol::EventMsg::SessionConfigured(ev.clone()),
+        ));
     }
 
     #[allow(clippy::print_stdout)]
     fn process_event(&mut self, event: protocol::Event) -> CodexStatus {
+        let source_timestamp = event.timestamp.clone();
         let aggregated = self.collect_thread_events(&event);
         for conv_event in aggregated {
-            match serialize_event_with_timestamp(&conv_event) {
+            match serialize_event_with_timestamp(&conv_event, &source_timestamp) {
                 Ok(line) => {
                     println!("{line}");
                 }

@@ -679,10 +679,10 @@ pub fn maybe_push_unstable_features_warning(
     let message = format!(
         "Under-development features enabled: {under_development_feature_keys}. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in {config_path}."
     );
-    post_session_configured_events.push(Event {
-        id: "".to_owned(),
-        msg: EventMsg::Warning(WarningEvent { message }),
-    });
+    post_session_configured_events.push(Event::new(
+        "",
+        EventMsg::Warning(WarningEvent { message }),
+    ));
 }
 
 #[cfg(test)]

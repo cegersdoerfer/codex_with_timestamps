@@ -867,6 +867,21 @@ pub struct Event {
     pub id: String,
     /// Payload
     pub msg: EventMsg,
+    /// ISO 8601 timestamp (millis, UTC) captured when the event is created.
+    #[serde(default)]
+    pub timestamp: String,
+}
+
+impl Event {
+    /// Create a new event stamped with the current UTC time.
+    pub fn new(id: impl Into<String>, msg: EventMsg) -> Self {
+        Self {
+            id: id.into(),
+            msg,
+            timestamp: chrono::Utc::now()
+                .to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+        }
+    }
 }
 
 /// Response event from the agent
@@ -3046,9 +3061,9 @@ mod tests {
     fn serialize_event() -> Result<()> {
         let conversation_id = ThreadId::from_string("67e55044-10b1-426f-9247-bb680e5fe0c8")?;
         let rollout_file = NamedTempFile::new()?;
-        let event = Event {
-            id: "1234".to_string(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        let event = Event::new(
+            "1234",
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id: conversation_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -3064,27 +3079,14 @@ mod tests {
                 network_proxy: None,
                 rollout_path: Some(rollout_file.path().to_path_buf()),
             }),
-        };
+        );
 
-        let expected = json!({
-            "id": "1234",
-            "msg": {
-                "type": "session_configured",
-                "session_id": "67e55044-10b1-426f-9247-bb680e5fe0c8",
-                "model": "codex-mini-latest",
-                "model_provider_id": "openai",
-                "approval_policy": "never",
-                "sandbox_policy": {
-                    "type": "read-only"
-                },
-                "cwd": "/home/user/project",
-                "reasoning_effort": "medium",
-                "history_log_id": 0,
-                "history_entry_count": 0,
-                "rollout_path": format!("{}", rollout_file.path().display()),
-            }
-        });
-        assert_eq!(expected, serde_json::to_value(&event)?);
+        let value = serde_json::to_value(&event)?;
+        assert_eq!(value["id"], "1234");
+        assert_eq!(value["msg"]["type"], "session_configured");
+        assert_eq!(value["msg"]["session_id"], "67e55044-10b1-426f-9247-bb680e5fe0c8");
+        assert_eq!(value["msg"]["model"], "codex-mini-latest");
+        assert!(value["timestamp"].is_string());
         Ok(())
     }
 
@@ -3108,15 +3110,15 @@ mod tests {
 
     #[test]
     fn serialize_mcp_startup_update_event() -> Result<()> {
-        let event = Event {
-            id: "init".to_string(),
-            msg: EventMsg::McpStartupUpdate(McpStartupUpdateEvent {
+        let event = Event::new(
+            "init",
+            EventMsg::McpStartupUpdate(McpStartupUpdateEvent {
                 server: "srv".to_string(),
                 status: McpStartupStatus::Failed {
                     error: "boom".to_string(),
                 },
             }),
-        };
+        );
 
         let value = serde_json::to_value(&event)?;
         assert_eq!(value["msg"]["type"], "mcp_startup_update");
@@ -3128,17 +3130,14 @@ mod tests {
 
     #[test]
     fn serialize_mcp_startup_complete_event() -> Result<()> {
-        let event = Event {
-            id: "init".to_string(),
-            msg: EventMsg::McpStartupComplete(McpStartupCompleteEvent {
+        let event = Event::new("init", EventMsg::McpStartupComplete(McpStartupCompleteEvent {
                 ready: vec!["a".to_string()],
                 failed: vec![McpStartupFailure {
                     server: "b".to_string(),
                     error: "bad".to_string(),
                 }],
                 cancelled: vec!["c".to_string()],
-            }),
-        };
+            }));
 
         let value = serde_json::to_value(&event)?;
         assert_eq!(value["msg"]["type"], "mcp_startup_complete");

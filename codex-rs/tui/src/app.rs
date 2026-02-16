@@ -279,10 +279,7 @@ impl ThreadEventStore {
                     if !event.id.is_empty() && self.user_message_ids.contains(&event.id) {
                         return;
                     }
-                    let legacy = Event {
-                        id: event.id,
-                        msg: item.as_legacy_event(),
-                    };
+                    let legacy = Event::new(event.id, item.as_legacy_event());
                     self.push_legacy_event(legacy);
                     return;
                 }
@@ -2598,9 +2595,9 @@ impl App {
             }
         };
         let config_snapshot = thread.config_snapshot().await;
-        let event = Event {
-            id: String::new(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        let event = Event::new(
+            "",
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id: thread_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -2616,7 +2613,7 @@ impl App {
                 network_proxy: None,
                 rollout_path: thread.rollout_path(),
             }),
-        };
+        );
         let channel =
             ThreadEventChannel::new_with_session_configured(THREAD_EVENT_CHANNEL_CAPACITY, event);
         let sender = channel.sender.clone();
@@ -2923,10 +2920,7 @@ mod tests {
             .insert(thread_id, ThreadEventChannel::new(1));
         app.set_thread_active(thread_id, true).await;
 
-        let event = Event {
-            id: String::new(),
-            msg: EventMsg::ShutdownComplete,
-        };
+        let event = Event::new("", EventMsg::ShutdownComplete);
 
         app.enqueue_thread_event(thread_id, event.clone()).await?;
         time::timeout(
@@ -3502,9 +3496,9 @@ mod tests {
         assert_eq!(user_count(&app.transcript_cells), 2);
 
         let base_id = ThreadId::new();
-        app.chat_widget.handle_codex_event(Event {
-            id: String::new(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        app.chat_widget.handle_codex_event(Event::new(
+            "",
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id: base_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -3520,7 +3514,7 @@ mod tests {
                 network_proxy: None,
                 rollout_path: Some(PathBuf::new()),
             }),
-        });
+        ));
 
         app.backtrack.base_id = Some(base_id);
         app.backtrack.primed = true;
@@ -3593,9 +3587,9 @@ mod tests {
         let (mut app, _app_event_rx, mut op_rx) = make_test_app_with_channels().await;
 
         let thread_id = ThreadId::new();
-        app.chat_widget.handle_codex_event(Event {
-            id: String::new(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        app.chat_widget.handle_codex_event(Event::new(
+            "",
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id: thread_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -3611,7 +3605,7 @@ mod tests {
                 network_proxy: None,
                 rollout_path: Some(PathBuf::new()),
             }),
-        });
+        ));
 
         let data_image_url = "data:image/png;base64,abc123".to_string();
         app.transcript_cells = vec![Arc::new(UserHistoryCell {
@@ -3657,9 +3651,9 @@ mod tests {
         let (mut app, mut app_event_rx, _op_rx) = make_test_app_with_channels().await;
 
         let session_id = ThreadId::new();
-        app.handle_codex_event_replay(Event {
-            id: String::new(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        app.handle_codex_event_replay(Event::new(
+            "",
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -3695,7 +3689,7 @@ mod tests {
                 network_proxy: None,
                 rollout_path: Some(PathBuf::new()),
             }),
-        });
+        ));
 
         let mut saw_rollback = false;
         while let Ok(event) = app_event_rx.try_recv() {
@@ -3736,9 +3730,9 @@ mod tests {
         let (mut app, mut app_event_rx, _op_rx) = make_test_app_with_channels().await;
 
         let session_id = ThreadId::new();
-        app.handle_codex_event_replay(Event {
-            id: String::new(),
-            msg: EventMsg::SessionConfigured(SessionConfiguredEvent {
+        app.handle_codex_event_replay(Event::new(
+            "",
+            EventMsg::SessionConfigured(SessionConfiguredEvent {
                 session_id,
                 forked_from_id: None,
                 thread_name: None,
@@ -3767,13 +3761,13 @@ mod tests {
                 network_proxy: None,
                 rollout_path: Some(PathBuf::new()),
             }),
-        });
+        ));
 
         // Simulate a live rollback arriving before queued replay inserts are drained.
-        app.handle_codex_event_now(Event {
-            id: "live-rollback".to_string(),
-            msg: EventMsg::ThreadRolledBack(ThreadRolledBackEvent { num_turns: 1 }),
-        });
+        app.handle_codex_event_now(Event::new(
+            "live-rollback",
+            EventMsg::ThreadRolledBack(ThreadRolledBackEvent { num_turns: 1 }),
+        ));
 
         let mut saw_rollback = false;
         while let Ok(event) = app_event_rx.try_recv() {
@@ -3881,10 +3875,10 @@ mod tests {
             rollout_path: Some(PathBuf::new()),
         };
 
-        app.chat_widget.handle_codex_event(Event {
-            id: String::new(),
-            msg: EventMsg::SessionConfigured(event),
-        });
+        app.chat_widget.handle_codex_event(Event::new(
+            "",
+            EventMsg::SessionConfigured(event),
+        ));
 
         while app_event_rx.try_recv().is_ok() {}
         while op_rx.try_recv().is_ok() {}

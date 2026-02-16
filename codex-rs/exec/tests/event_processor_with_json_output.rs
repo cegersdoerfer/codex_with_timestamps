@@ -74,10 +74,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 fn event(id: &str, msg: EventMsg) -> Event {
-    Event {
-        id: id.to_string(),
-        msg,
-    }
+    Event::new(id, msg)
 }
 
 #[test]
@@ -1307,21 +1304,31 @@ fn task_complete_produces_turn_completed_with_usage() {
 }
 
 #[test]
-fn serialize_event_with_timestamp_includes_timestamp_field() {
+fn serialize_event_with_source_timestamp_uses_provided_value() {
     let event = ThreadEvent::ThreadStarted(ThreadStartedEvent {
         thread_id: "abc-123".to_string(),
     });
-    let json_str = serialize_event_with_timestamp(&event).unwrap();
+    let source_ts = "2026-02-16T12:00:00.000Z";
+    let json_str = serialize_event_with_timestamp(&event, source_ts).unwrap();
     let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
     let obj = parsed.as_object().unwrap();
 
     assert_eq!(obj.get("type").unwrap(), "thread.started");
     assert_eq!(obj.get("thread_id").unwrap(), "abc-123");
+    assert_eq!(obj.get("timestamp").unwrap(), source_ts);
+}
+
+#[test]
+fn serialize_event_with_empty_source_timestamp_falls_back_to_now() {
+    let event = ThreadEvent::ThreadStarted(ThreadStartedEvent {
+        thread_id: "abc-123".to_string(),
+    });
+    let json_str = serialize_event_with_timestamp(&event, "").unwrap();
+    let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
+    let obj = parsed.as_object().unwrap();
 
     let ts = obj.get("timestamp").unwrap().as_str().unwrap();
-    // Verify ISO 8601 format ending with Z (UTC)
     assert!(ts.ends_with('Z'), "timestamp should end with Z: {ts}");
-    // Verify it parses as a valid RFC 3339 timestamp
     chrono::DateTime::parse_from_rfc3339(ts)
         .unwrap_or_else(|e| panic!("timestamp is not valid RFC 3339: {ts}: {e}"));
 }
@@ -1370,8 +1377,9 @@ fn all_thread_event_variants_include_timestamp() {
         }),
     ];
 
+    let source_ts = "2026-01-01T00:00:00.000Z";
     for variant in &variants {
-        let json_str = serialize_event_with_timestamp(variant).unwrap();
+        let json_str = serialize_event_with_timestamp(variant, source_ts).unwrap();
         let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
         let obj = parsed.as_object().unwrap();
 
@@ -1384,9 +1392,10 @@ fn all_thread_event_variants_include_timestamp() {
             "missing 'timestamp' field in {json_str}"
         );
 
-        let ts = obj["timestamp"].as_str().unwrap();
-        assert!(ts.ends_with('Z'), "timestamp should end with Z: {ts}");
-        chrono::DateTime::parse_from_rfc3339(ts)
-            .unwrap_or_else(|e| panic!("invalid RFC 3339 timestamp: {ts}: {e}"));
+        assert_eq!(
+            obj["timestamp"].as_str().unwrap(),
+            source_ts,
+            "timestamp should match source in {json_str}"
+        );
     }
 }

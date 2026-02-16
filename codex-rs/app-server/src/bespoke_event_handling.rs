@@ -116,6 +116,7 @@ pub(crate) async fn apply_bespoke_event_handling(
     let Event {
         id: event_turn_id,
         msg,
+        ..
     } = event;
     match msg {
         EventMsg::TurnStarted(_) => {}

@@ -33,10 +33,7 @@ pub(crate) fn spawn_agent(
             Err(err) => {
                 let message = format!("Failed to initialize codex: {err}");
                 tracing::error!("{message}");
-                app_event_tx_clone.send(AppEvent::CodexEvent(Event {
-                    id: "".to_string(),
-                    msg: EventMsg::Error(err.to_error_event(None)),
-                }));
+                app_event_tx_clone.send(AppEvent::CodexEvent(Event::new("", EventMsg::Error(err.to_error_event(None)))));
                 app_event_tx_clone.send(AppEvent::FatalExitRequest(message));
                 tracing::error!("failed to initialize codex: {err}");
                 return;
@@ -44,11 +41,7 @@ pub(crate) fn spawn_agent(
         };
 
         // Forward the captured `SessionConfigured` event so it can be rendered in the UI.
-        let ev = codex_core::protocol::Event {
-            // The `id` does not matter for rendering, so we can use a fake value.
-            id: "".to_string(),
-            msg: codex_core::protocol::EventMsg::SessionConfigured(session_configured),
-        };
+        let ev = codex_core::protocol::Event::new("", codex_core::protocol::EventMsg::SessionConfigured(session_configured));
         app_event_tx_clone.send(AppEvent::CodexEvent(ev));
 
         let thread_clone = thread.clone();
@@ -88,10 +81,7 @@ pub(crate) fn spawn_agent_from_existing(
     let app_event_tx_clone = app_event_tx;
     tokio::spawn(async move {
         // Forward the captured `SessionConfigured` event so it can be rendered in the UI.
-        let ev = codex_core::protocol::Event {
-            id: "".to_string(),
-            msg: codex_core::protocol::EventMsg::SessionConfigured(session_configured),
-        };
+        let ev = codex_core::protocol::Event::new("", codex_core::protocol::EventMsg::SessionConfigured(session_configured));
         app_event_tx_clone.send(AppEvent::CodexEvent(ev));
 
         let thread_clone = thread.clone();
