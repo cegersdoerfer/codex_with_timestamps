@@ -1309,13 +1309,15 @@ fn serialize_event_with_source_timestamp_uses_provided_value() {
         thread_id: "abc-123".to_string(),
     });
     let source_ts = "2026-02-16T12:00:00.000Z";
-    let json_str = serialize_event_with_timestamp(&event, source_ts).unwrap();
+    let json_str =
+        serialize_event_with_timestamp(&event, source_ts, Some(1_000_000_000)).unwrap();
     let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
     let obj = parsed.as_object().unwrap();
 
     assert_eq!(obj.get("type").unwrap(), "thread.started");
     assert_eq!(obj.get("thread_id").unwrap(), "abc-123");
     assert_eq!(obj.get("timestamp").unwrap(), source_ts);
+    assert_eq!(obj.get("timestamp_mono_ns").unwrap(), 1_000_000_000u64);
 }
 
 #[test]
@@ -1323,7 +1325,7 @@ fn serialize_event_with_empty_source_timestamp_falls_back_to_now() {
     let event = ThreadEvent::ThreadStarted(ThreadStartedEvent {
         thread_id: "abc-123".to_string(),
     });
-    let json_str = serialize_event_with_timestamp(&event, "").unwrap();
+    let json_str = serialize_event_with_timestamp(&event, "", None).unwrap();
     let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
     let obj = parsed.as_object().unwrap();
 
@@ -1331,6 +1333,10 @@ fn serialize_event_with_empty_source_timestamp_falls_back_to_now() {
     assert!(ts.ends_with('Z'), "timestamp should end with Z: {ts}");
     chrono::DateTime::parse_from_rfc3339(ts)
         .unwrap_or_else(|e| panic!("timestamp is not valid RFC 3339: {ts}: {e}"));
+    assert!(
+        obj.get("timestamp_mono_ns").is_none(),
+        "timestamp_mono_ns should be absent when source is None"
+    );
 }
 
 #[test]
@@ -1379,7 +1385,7 @@ fn all_thread_event_variants_include_timestamp() {
 
     let source_ts = "2026-01-01T00:00:00.000Z";
     for variant in &variants {
-        let json_str = serialize_event_with_timestamp(variant, source_ts).unwrap();
+        let json_str = serialize_event_with_timestamp(variant, source_ts, Some(42)).unwrap();
         let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
         let obj = parsed.as_object().unwrap();
 
@@ -1396,6 +1402,12 @@ fn all_thread_event_variants_include_timestamp() {
             obj["timestamp"].as_str().unwrap(),
             source_ts,
             "timestamp should match source in {json_str}"
+        );
+
+        assert_eq!(
+            obj["timestamp_mono_ns"].as_u64().unwrap(),
+            42,
+            "timestamp_mono_ns should be 42 in {json_str}"
         );
     }
 }

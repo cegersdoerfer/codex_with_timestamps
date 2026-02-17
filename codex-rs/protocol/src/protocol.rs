@@ -860,6 +860,31 @@ fn resolve_gitdir_from_file(dot_git: &AbsolutePathBuf) -> Option<AbsolutePathBuf
     Some(gitdir_path)
 }
 
+/// Return the current `CLOCK_MONOTONIC` time in nanoseconds since boot.
+///
+/// This is the same clock source used by `bpf_ktime_get_ns()` in eBPF
+/// programs, so the value can be compared directly with eBPF-captured
+/// syscall timestamps.
+fn monotonic_ns_since_boot() -> Option<u64> {
+    #[cfg(unix)]
+    {
+        let mut ts = libc::timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        };
+        let ret = unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut ts) };
+        if ret == 0 {
+            Some(ts.tv_sec as u64 * 1_000_000_000 + ts.tv_nsec as u64)
+        } else {
+            None
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        None
+    }
+}
+
 /// Event Queue Entry - events from agent
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Event {
@@ -870,6 +895,10 @@ pub struct Event {
     /// ISO 8601 timestamp (millis, UTC) captured when the event is created.
     #[serde(default)]
     pub timestamp: String,
+    /// `CLOCK_MONOTONIC` nanoseconds since boot, for correlation with eBPF
+    /// traces that use `bpf_ktime_get_ns()`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timestamp_mono_ns: Option<u64>,
 }
 
 impl Event {
@@ -880,6 +909,7 @@ impl Event {
             msg,
             timestamp: chrono::Utc::now()
                 .to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+            timestamp_mono_ns: monotonic_ns_since_boot(),
         }
     }
 }
@@ -3087,7 +3117,39 @@ mod tests {
         assert_eq!(value["msg"]["session_id"], "67e55044-10b1-426f-9247-bb680e5fe0c8");
         assert_eq!(value["msg"]["model"], "codex-mini-latest");
         assert!(value["timestamp"].is_string());
+        #[cfg(unix)]
+        assert!(
+            value["timestamp_mono_ns"].is_number(),
+            "expected timestamp_mono_ns to be a number on unix"
+        );
         Ok(())
+    }
+
+    #[test]
+    fn event_new_includes_monotonic_timestamp() {
+        let event = Event::new("test", EventMsg::Error(ErrorEvent {
+            message: "test error".to_string(),
+        }));
+        #[cfg(unix)]
+        assert!(
+            event.timestamp_mono_ns.is_some(),
+            "monotonic timestamp should be Some on unix"
+        );
+        #[cfg(not(unix))]
+        assert!(
+            event.timestamp_mono_ns.is_none(),
+            "monotonic timestamp should be None on non-unix"
+        );
+    }
+
+    #[test]
+    fn event_deserialization_without_timestamp_mono_ns() {
+        let json = r#"{"id":"1","msg":{"type":"error","message":"oops"},"timestamp":"2026-01-01T00:00:00.000Z"}"#;
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert!(
+            event.timestamp_mono_ns.is_none(),
+            "missing field should deserialize to None"
+        );
     }
 
     #[test]

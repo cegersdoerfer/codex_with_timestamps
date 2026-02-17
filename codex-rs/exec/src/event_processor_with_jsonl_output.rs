@@ -837,14 +837,19 @@ impl From<CoreAgentStatus> for CollabAgentState {
     }
 }
 
-/// Serializes a `ThreadEvent` to a JSON string with an added `timestamp` field.
+/// Serializes a `ThreadEvent` to a JSON string with an added `timestamp` field
+/// and an optional `timestamp_mono_ns` field.
 ///
 /// When `source_timestamp` is non-empty it is used as-is (this is the timestamp
 /// captured when the protocol event was created, before it entered the async
 /// channel). Otherwise falls back to `Utc::now()`.
+///
+/// `source_mono_ns` is the `CLOCK_MONOTONIC` nanosecond value captured
+/// alongside the wall-clock timestamp, used for eBPF trace correlation.
 pub fn serialize_event_with_timestamp(
     event: &ThreadEvent,
     source_timestamp: &str,
+    source_mono_ns: Option<u64>,
 ) -> Result<String, serde_json::Error> {
     let mut value = serde_json::to_value(event)?;
     if let serde_json::Value::Object(ref mut map) = value {
@@ -854,6 +859,12 @@ pub fn serialize_event_with_timestamp(
             source_timestamp.to_string()
         };
         map.insert("timestamp".to_string(), serde_json::Value::String(ts));
+        if let Some(mono_ns) = source_mono_ns {
+            map.insert(
+                "timestamp_mono_ns".to_string(),
+                serde_json::Value::Number(serde_json::Number::from(mono_ns)),
+            );
+        }
     }
     serde_json::to_string(&value)
 }
@@ -869,9 +880,10 @@ impl EventProcessor for EventProcessorWithJsonOutput {
     #[allow(clippy::print_stdout)]
     fn process_event(&mut self, event: protocol::Event) -> CodexStatus {
         let source_timestamp = event.timestamp.clone();
+        let source_mono_ns = event.timestamp_mono_ns;
         let aggregated = self.collect_thread_events(&event);
         for conv_event in aggregated {
-            match serialize_event_with_timestamp(&conv_event, &source_timestamp) {
+            match serialize_event_with_timestamp(&conv_event, &source_timestamp, source_mono_ns) {
                 Ok(line) => {
                     println!("{line}");
                 }
